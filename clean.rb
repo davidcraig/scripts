@@ -1,33 +1,57 @@
 #!/usr/bin/env ruby
 require 'fileutils'
-home = Dir.home
-
-dirs = [
-  "#{home}/Library/Caches/com.apple.helpd",
-  "#{home}/Library/Caches/Homebrew",
-  "#{home}/Library/Caches/Waterfox",
-  "#{home}/Library/Caches/com.getdropbox.DropboxMetaInstaller",
-  "#{home}/Library/Caches/VisualStudio",
-  "#{home}/Library/Logs/Electron",
-  "#{home}/Library/Logs/VisualStudio",
-]
 
 def remove_folder(path)
   if Dir.exists?(path)
     p = Dir.glob(path)
     puts "Removing #{p}"
     FileUtils.rm_rf(p)
+  else
+    puts "Folder #{path} does not exist"
   end
 end
 
-# Main List
+def remove_app_junk(app)
+  logs = "#{Dir.home}/Library/Logs/#{app}"
+  cache = "#{Dir.home}/Library/Cache/#{app}"
+  remove_folder logs
+  remove_folder cache
+end
+
+# ##### #
+# Other #
+# ##### #
+
+dirs = [
+  "#{Dir.home}/Library/Caches/com.apple.helpd",
+  "#{Dir.home}/Library/Caches/com.getdropbox.DropboxMetaInstaller",
+]
+
 dirs.each { |d|
-  remove_folder(d)
+  remove_folder d
 }
+
+# ############ #
+# Applications #
+# ############ #
+
+apps = [
+  'Electron',
+  'Homebrew',
+  'VisualStudio',
+]
+
+apps.each { |app|
+  remove_app_junk app
+}
+
+# ################################# #
+# Remove old JetBrains product data #
+# ################################# #
 
 jetbrains = [
   'PhpStorm',
-  'WebStorm'
+  'WebStorm',
 ]
 
 jetbrains_old_versions = [
@@ -38,9 +62,6 @@ jetbrains_old_versions = [
 
 jetbrains.each { |j|
   jetbrains_old_versions.each { |v|
-    logs = "#{home}/Library/Logs/#{j}#{v}"
-    cache = "#{home}/Library/Cache/#{j}#{v}"
-    remove_folder(logs)
-    remove_folder(cache)
+    remove_app_junk("#{j}#{v}")
   }
 }
